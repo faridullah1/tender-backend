@@ -48,13 +48,6 @@ const User = db.define('user',
 		allowNull: false,
 		defaultValue: false
 	}
-},
-{
-	defaultScope: {
-		attributes: {
-			exclude: ['password']
-		}
-	}
 });
 
 function validateUser(user) {

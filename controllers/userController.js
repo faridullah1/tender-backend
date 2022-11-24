@@ -22,7 +22,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
 
-	const token = jwt.sign({ email: req.body.email }, process.env.SECRET);
+	const token = jwt.sign({ email: req.body.email }, process.env.JWT_PRIVATE_KEY);
 
 	const { name, email, mobileNumber, password, type } = req.body;
 

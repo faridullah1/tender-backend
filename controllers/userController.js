@@ -6,9 +6,24 @@ const { User, validate } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { generateRandomFourDigits, sendSMS, sendEmail } = require('../utils/helpers');
+const { Op } = require('sequelize');
 
 exports.getAllUsers = async (req, res, next) => {
-	const users = await User.findAll();
+	const userType = req.query.type;
+	const where = {};
+
+	if (userType) {
+		let operator = 'eq';
+		if (typeof userType === 'object') {
+			operator = Object.keys(userType)
+		}
+
+		where['type'] = {
+			[Op[operator]]: 'Admin'
+		};
+	}
+	
+	const users = await User.findAll({ where });
 
 	res.status(200).json({
 		status: 'success',

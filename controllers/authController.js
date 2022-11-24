@@ -18,7 +18,7 @@ exports.login = catchAsync(async (req, res, next) => {
 	if (user.type !== req.body.type) return next(new AppError(`User of type ${req.body.type} does not exists`, 400));
 
 	// Check if user email is verified
-	if (!user.isAccountActive) return next(new AppError('User email is not verified', 400));
+	if (!user.isAccountActive) return next(new AppError('User account is not active', 400));
 
 	const isValid = await bcrypt.compare(req.body.password, user.password);
 	if (!isValid) return next(new AppError('Invalid email or password.', 400));

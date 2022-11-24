@@ -53,6 +53,30 @@ exports.createUser = catchAsync(async (req, res, next) => {
 	});
 });
 
+exports.createSuperAdmin = catchAsync(async (req, res, next) => {
+	const { error } = validate(req.body);
+	if (error) return next(new AppError(error.message, 400));
+
+	const { name, email, mobileNumber, password, type } = req.body;
+
+	const salt = await bcrypt.genSalt(10);
+	const encryptedPassword = await bcrypt.hash(password, salt);
+
+	const user = await User.create({ 
+		name, email, mobileNumber, 
+		password: encryptedPassword, type,
+		isSuperAdmin: true,
+		isAdmin: true
+	});
+	
+	res.status(201).json({
+		status: 'success',
+		data: {
+			user
+		}
+	});
+});
+
 exports.verifyUser = catchAsync(async(req, res, next) => {
 	const confirmationCode = req.params.confirmationCode;
 	console.log('code =', confirmationCode);

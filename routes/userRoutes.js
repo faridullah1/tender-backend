@@ -4,6 +4,7 @@ const userController = require('../controllers/userController');
 
 router.route('/otpVerification').post(userController.mobileOTPVerification);
 router.route('/sendEmail').post(userController.sendEmail);
+router.route('/createSuperAdmin').post(userController.createSuperAdmin);
 
 router.route('/')
 	.get(userController.getAllUsers)

@@ -10,6 +10,11 @@ router.route('/')
 	.get(userController.getAllUsers)
 	.post(userController.createUser);
 
+router.route('/:id')
+	.get(userController.getUser)
+	.patch(userController.updateUser)
+	.delete(userController.deleteUser)
+
 router.route('/verify/:confirmationCode').get(userController.verifyUser);
 
 module.exports = router;

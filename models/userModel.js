@@ -56,7 +56,8 @@ function validateUser(user) {
 		email: Joi.string().required().email(),
 		mobileNumber: Joi.string().required().min(10).max(10),
 		password: Joi.string().required().min(8),
-		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant', 'Admin')
+		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant', 'Admin'),
+		fromAdmin: Joi.boolean().default(false)
 	});
 
 	return schema.validate(user);

@@ -33,6 +33,20 @@ exports.getAllUsers = async (req, res, next) => {
 	});
 };
 
+exports.getUser = catchAsync(async (req, res, next) => {
+	const userId = req.params.id;
+	const user = await User.findOne({ where: { userId }});
+
+	if (!user) return next(new AppError('No record found with given Id', 404));
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			user
+		}
+	});
+});
+
 exports.createUser = catchAsync(async (req, res, next) => {
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
@@ -49,17 +63,24 @@ exports.createUser = catchAsync(async (req, res, next) => {
 		password: encryptedPassword, type, confirmationCode: token 
 	});
 
-	const emailOptions = {
-		email: email,
-		subject: 'Please confirm your account',
-		html:  `<h1>Email Confirmation</h1>
-			<h2>Hi, ${name}</h2>
-			<p>Thank you for registering with Wissal. Please confirm your email by clicking on the following link</p>
-			<a href=http://localhost:4200/confirm/${token}> Click here</a>
-        </div>`
-	};
-
-	await sendEmail(emailOptions);
+	// Don't need email verification incase admin add user;
+	if (req.body.fromAdmin) {
+		user.isAccountActive = true;
+		await user.save();
+	}
+	else {
+		const emailOptions = {
+			email: email,
+			subject: 'Please confirm your account',
+			html:  `<h1>Email Confirmation</h1>
+				<h2>Hi, ${name}</h2>
+				<p>Thank you for registering with Wissal. Please confirm your email by clicking on the following link</p>
+				<a href=http://localhost:4200/confirm/${token}> Click here</a>
+			</div>`
+		};
+	
+		await sendEmail(emailOptions);
+	}
 	
 	res.status(201).json({
 		status: 'success',
@@ -85,6 +106,34 @@ exports.createSuperAdmin = catchAsync(async (req, res, next) => {
 	});
 	
 	res.status(201).json({
+		status: 'success',
+		data: {
+			user
+		}
+	});
+});
+
+exports.updateUser = catchAsync(async (req, res, next) => {
+	const userId = req.params.id;
+	const user = await User.update(req.body, { where: { userId }});
+
+	if (!user) return next(new AppError('No record found with given Id', 404));
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			user
+		}
+	});
+});
+
+exports.deleteUser = catchAsync(async (req, res, next) => {
+	const userId = req.params.id;
+	const user = await User.destroy({ where: { userId }});
+
+	if (!user) return next(new AppError('No record found with given Id', 404));
+
+	res.status(204).json({
 		status: 'success',
 		data: {
 			user

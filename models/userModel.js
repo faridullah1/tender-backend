@@ -35,7 +35,7 @@ const User = db.define('user',
 	},
 	confirmationCode: Sequelize.STRING,
 	type: {
-		type: Sequelize.STRING,			// Possible Types are Client, Supplier, Contractor, Consultant
+		type: Sequelize.STRING,			// Possible Types are Client, Supplier, Contractor, Consultant, Super_Admin, Admin, Employee
 		allowNull: false
 	},
 	isAdmin: {
@@ -56,8 +56,7 @@ function validateUser(user) {
 		email: Joi.string().required().email(),
 		mobileNumber: Joi.string().required().min(10).max(10),
 		password: Joi.string().required().min(8),
-		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant', 'Admin'),
-		fromAdmin: Joi.boolean().default(false)
+		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant'),
 	});
 
 	return schema.validate(user);

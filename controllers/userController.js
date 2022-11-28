@@ -18,9 +18,17 @@ exports.getAllUsers = async (req, res, next) => {
 			operator = Object.keys(userType)
 		}
 
-		where['type'] = {
-			[Op[operator]]: 'Admin'
-		};
+		// If user types are multiple for example ['Super_Admin', 'Admin', 'Employee']
+		if (userType.split(',').length > 1) {
+			where['type'] = {
+				[Op['in']]: userType.split(',')
+			};
+		}
+		else {
+			where['type'] = {
+				[Op[operator]]: userType
+			};
+		}
 	}
 	
 	const users = await User.findAll({ where });
@@ -48,19 +56,27 @@ exports.getUser = catchAsync(async (req, res, next) => {
 });
 
 exports.createUser = catchAsync(async (req, res, next) => {
-	const { error } = validate(req.body);
-	if (error) return next(new AppError(error.message, 400));
+	if (req.body.fromAdmin) {
+		const { error } = validateNormalAndAdminUser(req.body);
+		if (error) return next(new AppError(error.message, 400));
+	}
+	else {
+		const { error } = validate(req.body);
+		if (error) return next(new AppError(error.message, 400));
+	}
 
 	const token = jwt.sign({ email: req.body.email }, process.env.JWT_PRIVATE_KEY);
 
-	const { name, email, mobileNumber, password, type } = req.body;
+	const { name, email, mobileNumber, password, type, isAdmin } = req.body;
 
 	const salt = await bcrypt.genSalt(10);
 	const encryptedPassword = await bcrypt.hash(password, salt);
 
 	const user = await User.create({ 
-		name, email, mobileNumber, 
-		password: encryptedPassword, type, confirmationCode: token 
+		name, email, mobileNumber,
+		isAdmin: isAdmin || false,
+		password: encryptedPassword, 
+		type, confirmationCode: token 
 	});
 
 	// Don't need email verification incase admin add user;
@@ -90,17 +106,21 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.createSuperAdmin = catchAsync(async (req, res, next) => {
-	const { error } = validate(req.body);
+	const { error } = validateAdmin(req.body);
 	if (error) return next(new AppError(error.message, 400));
 
-	const { name, email, mobileNumber, password, type } = req.body;
+	const { name, email, mobileNumber, password } = req.body;
 
 	const salt = await bcrypt.genSalt(10);
 	const encryptedPassword = await bcrypt.hash(password, salt);
 
 	const user = await User.create({ 
-		name, email, mobileNumber, 
-		password: encryptedPassword, type,
+		name, 
+		email, 
+		mobileNumber, 
+		password: encryptedPassword,
+		type: 'Super_Admin',
+		isAccountActive: true,
 		isSuperAdmin: true,
 		isAdmin: true
 	});
@@ -201,4 +221,29 @@ validateMobileNumber = (mobNumber) => {
 	});
 
 	return schema.validate(mobNumber);
+}
+
+validateNormalAndAdminUser = (user) => {
+	const schema = Joi.object({
+		name: Joi.string().required().min(3),
+		email: Joi.string().required().email(),
+		mobileNumber: Joi.string().required().min(10).max(10),
+		password: Joi.string().required().min(8),
+		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant', 'Admin', 'Employee'),
+		fromAdmin: Joi.boolean().default(false),
+		isAdmin: Joi.boolean().default(false),
+	});
+
+	return schema.validate(user);
+}
+
+validateAdmin = (user) => {
+	const schema = Joi.object({
+		name: Joi.string().required().min(3),
+		email: Joi.string().required().email(),
+		mobileNumber: Joi.string().required().min(10).max(10),
+		password: Joi.string().required().min(8),
+	});
+
+	return schema.validate(user);
 }

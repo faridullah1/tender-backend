@@ -43,7 +43,7 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.getUser = catchAsync(async (req, res, next) => {
 	const userId = req.params.id;
-	const user = await User.findOne({ where: { userId }});
+	const user = await User.findByPk(userId);
 
 	if (!user) return next(new AppError('No record found with given Id', 404));
 

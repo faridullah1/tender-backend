@@ -14,21 +14,34 @@ const Project = db.define('project',
 		type: Sequelize.STRING,
 		allowNull: false
 	},
-	location: {
+	location: {							// Doha, Al Rayyan, Umm Salal, Al Khor & Al Thakira, Al Wakrah, Al Daayen, Al Shamal, and Al Shahaniya
 		type: Sequelize.STRING,
 		allowNull: false,
 	},
-	image: {
+	description: {
+		type: Sequelize.STRING(1000),
+		allowNull: false
+	},
+	type: {								// Villa, Commercial Building, Industrial Project
 		type: Sequelize.STRING,
+		allowNull: false 
+	},
+	isApproved: {
+		type: Sequelize.BOOLEAN,
 		allowNull: false,
-	}
+		defaultValue: false
+	},
+	image: Sequelize.STRING
 });
 
 function validateUser(project) {
 	const schema = Joi.object({
 		name: Joi.string().required(),
 		location: Joi.string().required(),
-		image: Joi.string().required()
+		description: Joi.string().required().max(1000),
+		type: Joi.string().required(),
+		isApproved: Joi.boolean().default(false),
+		image: Joi.string()
 	});
 
 	return schema.validate(project);

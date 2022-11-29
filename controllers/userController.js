@@ -14,23 +14,30 @@ exports.getAllUsers = async (req, res, next) => {
 
 	if (userType) {
 		let operator = 'eq';
-		if (typeof userType === 'object') {
-			operator = Object.keys(userType)
-		}
 
-		// If user types are multiple for example ['Super_Admin', 'Admin', 'Employee']
-		if (userType.split(',').length > 1) {
+		// Case1: When query type is an object { 'ne': 'Admin' }
+		if (typeof userType === 'object') {
+			operator = Object.keys(userType);
 			where['type'] = {
-				[Op['in']]: userType.split(',')
+				[Op[operator]]: userType[operator]
 			};
+
+			if (userType[operator].split(',').length > 1) {
+				where['type'] = {
+					[Op.notIn]: userType[operator].split(',')
+				};
+			}
 		}
 		else {
-			where['type'] = {
-				[Op[operator]]: userType
-			};
+			// Case2: If user types are multiple for example ['Super_Admin', 'Admin', 'Employee']
+			if (userType.split(',').length > 1) {
+				where['type'] = {
+					[Op['in']]: userType.split(',')
+				};
+			}
 		}
 	}
-	
+
 	const users = await User.findAll({ where });
 
 	res.status(200).json({

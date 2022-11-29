@@ -15,6 +15,8 @@ app.use(express.json());
 // Routers
 const userRouter = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
+const projectRouter = require('./routes/projectRoutes');
+
 
 app.get('/', (req, res) => {
 	res.status(200).send('Welcome to Wissal Tender Application')
@@ -23,6 +25,8 @@ app.get('/', (req, res) => {
 // API endPoints
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/projects', projectRouter);
+
 
 // Handling unhandled routes
 app.all('*', (req, res, next) => {

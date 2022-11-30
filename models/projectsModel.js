@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const Joi = require('joi');
+
+const { User } = require('../models/userModel');
 const db = require('../db');
 
 const Project = db.define('project', 
@@ -31,7 +33,16 @@ const Project = db.define('project',
 		allowNull: false,
 		defaultValue: false
 	},
-	image: Sequelize.STRING
+	image: Sequelize.STRING,
+	clientId: {							// Project is always associated with a client, no project without a client;
+		type: Sequelize.INTEGER,
+		allowNull: false,
+		references: {
+			model: User,
+			key: 'userId',
+			onDelete: 'RESTRICT'
+		}
+	}
 });
 
 function validateUser(project) {
@@ -41,7 +52,8 @@ function validateUser(project) {
 		description: Joi.string().required().max(1000),
 		type: Joi.string().required(),
 		isApproved: Joi.boolean().default(false),
-		image: Joi.string()
+		image: Joi.string(),
+		clientId: Joi.number().required()
 	});
 
 	return schema.validate(project);

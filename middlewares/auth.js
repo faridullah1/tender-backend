@@ -1,9 +1,11 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
+
 const AppError = require('../utils/appError');
 const { User } = require('../models/userModel');
+const catchAsync = require('../utils/catchAsync');
 
-exports.auth = async (req, res, next) => {
+exports.auth = catchAsync(async (req, res, next) => {
 	// 1) Getting token and checking if it is there;
 	let token = '';
 	if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -30,4 +32,4 @@ exports.auth = async (req, res, next) => {
 	
 	// Grant access to protected route;
 	next();
-}
+});

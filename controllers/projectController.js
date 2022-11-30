@@ -1,10 +1,19 @@
 const { Project, validate } = require('../models/projectsModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { Constants } = require('../utils/contants');
 
 exports.getAllProjects = async (req, res, next) => {
-	const projects = await Project.findAll();
+	const { type, userId } = req.user;
+	const where = {};
+
+	// Clients can only see projects approved from admin;
+	if (type === 'Client') {		
+		where.isApproved = true;
+		// Project is always associated with a client, no project without a client;
+		where.clientId = userId
+	}
+
+	const projects = await Project.findAll({ where });
 
 	res.status(200).json({
 		status: 'success',
@@ -30,7 +39,7 @@ exports.getProject = catchAsync(async (req, res, next) => {
 
 exports.createProject = catchAsync(async (req, res, next) => {
 	const { type: userType } = req.user;
-	if (userType !== 'Client') return next(new AppError("You don't have the permission to create project."), 403);
+	if (userType !== 'Client') return next(new AppError("You don't have the permission to create project.", 403));
 
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
@@ -42,14 +51,15 @@ exports.createProject = catchAsync(async (req, res, next) => {
 		"https://toptender.qa/toptender/public/images/works/791628583231.jpg"
 	];
 
-	const { name, location, description, type, image } = req.body;
+	const { name, location, description, type, image, clientId } = req.body;
 
 	const project = await Project.create({ 
 		name, 
 		location, 
 		image: projectImages[Math.floor(Math.random() * projectImages.length)],
 		description,
-		type
+		type,
+		clientId
 	});
 	
 	res.status(201).json({
@@ -62,8 +72,8 @@ exports.createProject = catchAsync(async (req, res, next) => {
 
 exports.approveProject = catchAsync(async (req, res, next) => {
 	const { type: userType } = req.user;
-	const adminUsers = Constants.ADMIN_USER_Types;
 
+	const adminUsers = ['Super_Admin', 'Admin', 'Employee'];
 	if (!adminUsers.includes(userType)) return next(new AppError("You don't have the permission to approve project."), 403);
 
 	const projectId = req.params.id;
@@ -72,6 +82,7 @@ exports.approveProject = catchAsync(async (req, res, next) => {
 	if (!project) return next(new AppError('No record found with given Id', 404));
 
 	project.isApproved = true;
+	await project.save();
 
 	res.status(200).json({
 		status: 'success',

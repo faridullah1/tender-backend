@@ -27,6 +27,9 @@ exports.auth = catchAsync(async (req, res, next) => {
 			return next(new AppError('The user belongs to the token does no longer exists.', 401));
 		}
 
+		// Check if user account is active
+		if (!currentUser.isAccountActive) return next(new AppError('User account is not active', 400));
+
 		req.user = currentUser.dataValues;
 	}
 	

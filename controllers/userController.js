@@ -38,6 +38,9 @@ exports.getAllUsers = async (req, res, next) => {
 		}
 	}
 
+	// Don't query logged in user data
+	where.email = { [Op.ne]: req.user.email };
+	
 	const users = await User.findAll({ where });
 
 	res.status(200).json({
@@ -89,6 +92,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 	// Don't need email verification incase admin add user;
 	if (req.body.fromAdmin) {
 		user.isAccountActive = true;
+		user.isEmailVerified = true;
 		await user.save();
 	}
 	else {
@@ -170,12 +174,19 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 
 exports.verifyUser = catchAsync(async(req, res, next) => {
 	const confirmationCode = req.params.confirmationCode;
-	console.log('code =', confirmationCode);
-	const user = await User.findOne({ where: { confirmationCode }});
+	let user = await User.findOne({ where: { confirmationCode }});
 
 	if (!user) return next(new AppError('User not found', 404));
 
-	user.isAccountActive = true;
+	// Supplier and Contractor gets active when admin approve it, other users account get active as their email is verified;
+	if (user.dataValues.type === 'Supplier' || user.dataValues.type === 'Contractor') {
+		user.isEmailVerified = true;
+	}
+	else {
+		user.isEmailVerified = true;
+		user.isAccountActive = true;
+	}
+
 	await user.save();
 
 	res.status(200).json({

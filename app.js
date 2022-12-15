@@ -19,7 +19,7 @@ const projectRouter = require('./routes/projectRoutes');
 
 
 app.get('/', (req, res) => {
-	res.status(200).send('Welcome to Wissal Tender Application')
+	res.status(200).send('Welcome to Wissal Tender Application');
 });
 
 // API endPoints

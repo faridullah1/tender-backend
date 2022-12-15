@@ -33,6 +33,10 @@ const User = db.define('user',
 		type: Sequelize.BOOLEAN,
 		defaultValue: false
 	},
+	isEmailVerified: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: false
+	},
 	confirmationCode: Sequelize.STRING,
 	type: {
 		type: Sequelize.STRING,			// Possible Types are Client, Supplier, Contractor, Consultant, Super_Admin, Admin, Employee

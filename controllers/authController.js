@@ -11,14 +11,14 @@ exports.login = catchAsync(async (req, res, next) => {
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
 
-	let { dataValues:user } = await User.findOne({ where: { email: req.body.email } });
+	let user = await User.findOne({ where: { email: req.body.email } });
 	if (!user) return next(new AppError('Invalid email or password.', 400));
 
 	// Check if user type is the same as the one stored against email
 	if (user.type !== req.body.type) return next(new AppError(`User of type ${req.body.type} does not exists`, 400));
 
 	// Check if user account is active
-	if (!user.isAccountActive) return next(new AppError('User account is not active', 400));
+	if (!user.isAccountActive || !user.isEmailVerified) return next(new AppError('User account is not active', 400));
 
 	const isValid = await bcrypt.compare(req.body.password, user.password);
 	if (!isValid) return next(new AppError('Invalid email or password.', 400));
@@ -42,6 +42,9 @@ exports.adminLogin = catchAsync(async (req, res, next) => {
 
 	const isValid = await bcrypt.compare(req.body.password, user.password);
 	if (!isValid) return next(new AppError('Invalid email or password.', 400));
+
+	// Check if user account is active
+	if (!user.isAccountActive || !user.isEmailVerified) return next(new AppError('User account is not active', 400));
 
 	const token  = jwt.sign({ id: user.userId, name: user.name, email: user.email, isSuperAdmin: true }, process.env.JWT_PRIVATE_KEY, {
 		expiresIn: process.env.JWT_EXPIRY

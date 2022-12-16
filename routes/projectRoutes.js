@@ -6,12 +6,16 @@ const { auth } = require('../middlewares/auth');
 
 router.use(auth, restrictTo('Client', 'Super_Admin', 'Admin'));
 
+router.route('/approve/:id')
+	.patch(projectController.approveProject);
+
 router.route('/')
 	.get(projectController.getAllProjects)
 	.post(projectController.createProject);
 
 router.route('/:id')
 	.get(projectController.getProject)
-	.patch(projectController.approveProject)
+	.patch(projectController.updateProject)
+	.delete(projectController.deleteProject)
 
 module.exports = router;

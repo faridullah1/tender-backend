@@ -39,7 +39,10 @@ exports.getProject = catchAsync(async (req, res, next) => {
 
 exports.createProject = catchAsync(async (req, res, next) => {
 	const { type: userType } = req.user;
-	if (userType !== 'Client') return next(new AppError("You don't have the permission to create project.", 403));
+
+	if (!['Client', 'Super_Admin'].includes(userType)) {
+		return next(new AppError("You don't have the permission to create project.", 403));
+	}
 
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
@@ -61,8 +64,41 @@ exports.createProject = catchAsync(async (req, res, next) => {
 		type,
 		clientId
 	});
+
+	if (userType === 'Super_Admin') {
+		project.isApproved = true;
+		await project.save();
+	}
 	
 	res.status(201).json({
+		status: 'success',
+		data: {
+			project
+		}
+	});
+});
+
+exports.updateProject = catchAsync(async (req, res, next) => {
+	const projectId = req.params.id;
+	const project = await Project.update(req.body, { where: { projectId }});
+
+	if (!project) return next(new AppError('No record found with given Id', 404));
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			project
+		}
+	});
+});
+
+exports.deleteProject = catchAsync(async (req, res, next) => {
+	const projectId = req.params.id;
+	const project = await Project.destroy({ where: { projectId }});
+
+	if (!project) return next(new AppError('No record found with given Id', 404));
+
+	res.status(204).json({
 		status: 'success',
 		data: {
 			project

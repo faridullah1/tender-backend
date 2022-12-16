@@ -35,6 +35,9 @@ exports.getAllUsers = async (req, res, next) => {
 					[Op['in']]: userType.split(',')
 				};
 			}
+			else {
+				where.type = userType;
+			}
 		}
 	}
 

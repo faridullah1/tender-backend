@@ -135,6 +135,7 @@ exports.createSuperAdmin = catchAsync(async (req, res, next) => {
 		password: encryptedPassword,
 		type: 'Super_Admin',
 		isAccountActive: true,
+		isEmailVerified: true,
 		isSuperAdmin: true,
 		isAdmin: true
 	});
@@ -263,7 +264,7 @@ validateAdmin = (user) => {
 		name: Joi.string().required().min(3),
 		email: Joi.string().required().email(),
 		mobileNumber: Joi.string().required().min(10).max(10),
-		password: Joi.string().required().min(8),
+		password: Joi.string().required().min(8)
 	});
 
 	return schema.validate(user);

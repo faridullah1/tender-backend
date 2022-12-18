@@ -6,10 +6,8 @@ exports.getAllProjects = async (req, res, next) => {
 	const { type, userId } = req.user;
 	const where = {};
 
-	// Clients can only see projects approved from admin;
+	// Project is always associated with a client, no project without a client;
 	if (type === 'Client') {		
-		where.isApproved = true;
-		// Project is always associated with a client, no project without a client;
 		where.clientId = userId
 	}
 

@@ -1,7 +1,18 @@
 const sendErrorDev = (err, res) => {
+	let errorMessage = err.message;
+
+	if (err.name) {
+		switch(err.name) {
+			case 'SequelizeUniqueConstraintError':
+				const field = Object.entries(err.fields);
+				errorMessage = `${field[0][0]} already exists`;
+				break;
+		}
+	}
+
 	res.status(err.statusCode).json({
 		status: err.status,
-		message: err.message,
+		message: errorMessage,
 		err: err,
 		stack: err.stack
 	});

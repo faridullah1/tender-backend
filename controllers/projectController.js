@@ -1,10 +1,20 @@
+const { Op } = require('sequelize');
 const { Project, validate } = require('../models/projectsModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllProjects = async (req, res, next) => {
 	const { type, userId } = req.user;
+	const name = req.query.name;
+
 	const where = {};
+
+	// Fetch projects containing name
+	if (name) {
+		where.name = {
+			[Op.like]: '%' + name + '%'
+		}
+	}
 
 	// Project is always associated with a client, no project without a client;
 	if (type === 'Client') {		

@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const { Project, validate } = require('../models/projectsModel');
+const { User } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -21,7 +22,7 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 		where.clientId = userId
 	}
 
-	const projects = await Project.findAll({ where });
+	const projects = await Project.findAll( { where, include: User });
 
 	res.status(200).json({
 		status: 'success',

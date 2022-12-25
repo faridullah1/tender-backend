@@ -16,6 +16,7 @@ app.use(express.json());
 const userRouter = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
 const projectRouter = require('./routes/projectRoutes');
+const tenderRouter = require('./routes/tenderRoutes');
 
 
 app.get('/', (req, res) => {
@@ -26,7 +27,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
-
+app.use('/api/tenders', tenderRouter);
 
 // Handling unhandled routes
 app.all('*', (req, res, next) => {
@@ -36,6 +37,10 @@ app.all('*', (req, res, next) => {
 app.use(globalErrorHandler);
 
 const sequelize = require('./db');
+
+// Run the migration to populate database with the tables
+require('./migration.js')();
+
 sequelize.sync().then(() => 
 {
 	const port = process.env.PORT || 3000;

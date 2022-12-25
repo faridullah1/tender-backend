@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const Joi = require('joi');
 
 const db = require('../db');
+const { UserCompany } = require('./userCompanyModel');
 
 const User = db.define('user', 
 {
@@ -51,6 +52,15 @@ const User = db.define('user',
 		type: Sequelize.BOOLEAN,
 		allowNull: false,
 		defaultValue: false
+	},
+	company: {
+		type: Sequelize.INTEGER,
+		allowNull: true,
+		references: {
+			model: UserCompany,
+			key: 'companyId',
+			onDelete: 'RESTRICT'
+		}
 	}
 });
 

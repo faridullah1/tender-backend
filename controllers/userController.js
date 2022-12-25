@@ -7,38 +7,46 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { generateRandomFourDigits, sendSMS, sendEmail } = require('../utils/helpers');
 const { Op } = require('sequelize');
+const { UserCompany } = require('../models/userCompanyModel');
+
+prepareWhere = (userType) => {
+	let operator = 'eq';
+	let where = {};
+
+	// Case1: When query type is an object { 'ne': 'Admin' }
+	if (typeof userType === 'object') {
+		operator = Object.keys(userType);
+		where['type'] = {
+			[Op[operator]]: userType[operator]
+		};
+
+		if (userType[operator].split(',').length > 1) {
+			where['type'] = {
+				[Op.notIn]: userType[operator].split(',')
+			};
+		}
+	}
+	else {
+		// Case2: If user types are multiple for example ['Super_Admin', 'Admin', 'Employee']
+		if (userType.split(',').length > 1) {
+			where['type'] = {
+				[Op['in']]: userType.split(',')
+			};
+		}
+		else {
+			where.type = userType;
+		}
+	}
+
+	return where;
+}
 
 exports.getAllUsers = async (req, res, next) => {
 	const userType = req.query.type;
-	const where = {};
+	let where = {};
 
 	if (userType) {
-		let operator = 'eq';
-
-		// Case1: When query type is an object { 'ne': 'Admin' }
-		if (typeof userType === 'object') {
-			operator = Object.keys(userType);
-			where['type'] = {
-				[Op[operator]]: userType[operator]
-			};
-
-			if (userType[operator].split(',').length > 1) {
-				where['type'] = {
-					[Op.notIn]: userType[operator].split(',')
-				};
-			}
-		}
-		else {
-			// Case2: If user types are multiple for example ['Super_Admin', 'Admin', 'Employee']
-			if (userType.split(',').length > 1) {
-				where['type'] = {
-					[Op['in']]: userType.split(',')
-				};
-			}
-			else {
-				where.type = userType;
-			}
-		}
+		where = prepareWhere(userType);
 	}
 
 	// Don't query logged in user data
@@ -73,8 +81,13 @@ exports.createUser = catchAsync(async (req, res, next) => {
 		const { error } = validateNormalAndAdminUser(req.body);
 		if (error) return next(new AppError(error.message, 400));
 	}
-	else {
+	else if (req.body.type === 'Client') {
 		const { error } = validate(req.body);
+		if (error) return next(new AppError(error.message, 400));
+	}
+	else
+	{
+		const { error } = validateNonClientUser(req.body);
 		if (error) return next(new AppError(error.message, 400));
 	}
 
@@ -91,6 +104,18 @@ exports.createUser = catchAsync(async (req, res, next) => {
 		password: encryptedPassword, 
 		type, confirmationCode: token 
 	});
+
+	if (type !== 'Client') {
+		const { companyName, commercialRegNumber, address, totalEmployees } = req.body;
+
+		const company = await UserCompany.create({
+			name: companyName, commercialRegNumber, address, totalEmployees
+		});
+
+		user.company = company.dataValues.companyId;
+
+		await user.save();
+	}
 
 	// Don't need email verification incase admin add user;
 	if (req.body.fromAdmin) {
@@ -254,6 +279,25 @@ validateNormalAndAdminUser = (user) => {
 		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant', 'Admin', 'Employee'),
 		fromAdmin: Joi.boolean().default(false),
 		isAdmin: Joi.boolean().default(false),
+	});
+
+	return schema.validate(user);
+}
+
+validateNonClientUser = (user) => {
+	const schema = Joi.object({
+		name: Joi.string().required().min(3),
+		email: Joi.string().required().email(),
+		mobileNumber: Joi.string().required().min(10).max(10),
+		password: Joi.string().required().min(8),
+		type: Joi.string().required().valid('Supplier', 'Contractor', 'Consultant'),
+
+		// User Company Info
+		companyName: Joi.string().required(),
+		commercialRegNumber: Joi.string().required(),
+		address: Joi.string().required(),
+		totalEmployees: Joi.number().required(),
+		documents: Joi.string().allow('')
 	});
 
 	return schema.validate(user);

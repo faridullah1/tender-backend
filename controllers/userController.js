@@ -77,19 +77,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
 });
 
 exports.createUser = catchAsync(async (req, res, next) => {
-	if (req.body.fromAdmin) {
-		const { error } = validateNormalAndAdminUser(req.body);
-		if (error) return next(new AppError(error.message, 400));
-	}
-	else if (req.body.type === 'Client') {
-		const { error } = validate(req.body);
-		if (error) return next(new AppError(error.message, 400));
-	}
-	else
-	{
-		const { error } = validateNonClientUser(req.body);
-		if (error) return next(new AppError(error.message, 400));
-	}
+	validateRequestData(req);
 
 	const token = jwt.sign({ email: req.body.email }, process.env.JWT_PRIVATE_KEY);
 
@@ -261,6 +249,22 @@ exports.sendEmail = catchAsync( async(req, res, next) => {
 		}
 	});
 });
+
+validateRequestData = (req) => {
+	if (req.body.fromAdmin) {
+		const { error } = validateNormalAndAdminUser(req.body);
+		if (error) return next(new AppError(error.message, 400));
+	}
+	else if (req.body.type === 'Client') {
+		const { error } = validate(req.body);
+		if (error) return next(new AppError(error.message, 400));
+	}
+	else
+	{
+		const { error } = validateNonClientUser(req.body);
+		if (error) return next(new AppError(error.message, 400));
+	}
+}
 
 validateMobileNumber = (mobNumber) => {
 	const schema = Joi.object({

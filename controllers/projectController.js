@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const { Project, validate } = require('../models/projectsModel');
+const { Tender } = require('../models/tenderModel');
 const { User } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
@@ -19,10 +20,17 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 
 	// Project is always associated with a client, no project without a client;
 	if (type === 'Client') {		
-		where.clientId = userId
+		where.clientId = userId;
 	}
 
-	const projects = await Project.findAll( { where, include: User });
+	const projects = await Project.findAll( { where, include: [
+		{ 
+			model: User, attributes: ['name', 'mobileNumber'] 
+		},
+		{
+			model: Tender, attributes: ['tenderNumber']
+		}
+	] });
 
 	res.status(200).json({
 		status: 'success',

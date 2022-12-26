@@ -44,6 +44,11 @@ const Tender = db.define('tender',
 		type: Sequelize.STRING(1000),
 		allowNull: false
 	},
+	status: {							// Tender status: 'Open', 'Under Evaluation', 'Awarded to xxx Company'
+		type: Sequelize.STRING,
+		allowNull: false,
+		defaultValue: 'Open'
+	},
 	documents: Sequelize.STRING,
 	projectId: {
 		type: Sequelize.INTEGER,

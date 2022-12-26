@@ -16,6 +16,20 @@ exports.getAllTenders = catchAsync(async (req, res, next) => {
 	});
 });
 
+exports.getTender = catchAsync(async (req, res, next) => {
+	const tenderId = req.params.id;
+	const tender = await Tender.findByPk(tenderId);
+
+	if (!tender) return next(new AppError('No record found with given Id', 404));
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tender
+		}
+	});
+});
+
 exports.createTender = catchAsync(async (req, res, next) => {
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
@@ -39,6 +53,34 @@ exports.createTender = catchAsync(async (req, res, next) => {
 	});
 	
 	res.status(201).json({
+		status: 'success',
+		data: {
+			tender
+		}
+	});
+});
+
+exports.updateTender = catchAsync(async (req, res, next) => {
+	const tenderId = req.params.id;
+	const tender = await Tender.update(req.body, { where: { tenderId }});
+
+	if (!tender) return next(new AppError('No record found with given Id', 404));
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tender
+		}
+	});
+});
+
+exports.deleteTender = catchAsync(async (req, res, next) => {
+	const tenderId = req.params.id;
+	const tender = await Tender.destroy({ where: { tenderId }});
+
+	if (!tender) return next(new AppError('No record found with given Id', 404));
+
+	res.status(204).json({
 		status: 'success',
 		data: {
 			tender

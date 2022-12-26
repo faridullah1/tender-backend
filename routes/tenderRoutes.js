@@ -5,12 +5,14 @@ const { auth } = require('../middlewares/auth');
 const { restrictTo } = require('../middlewares/permissions');
 
 router.route('/')
-	.get(tenderControler.getAllTenders)
+	.get(auth, tenderControler.getAllTenders)
 	.post(auth, restrictTo('Super_Admin', 'Admin'), tenderControler.createTender);
 
-// router.route('/:id')
-// 	.get(tenderControler.getProject)
-// 	.patch(tenderControler.updateProject)
-// 	.delete(tenderControler.deleteProject)
+router.use(auth, restrictTo('Super_Admin', 'Admin'));
+
+router.route('/:id')
+	.get(tenderControler.getTender)
+	.patch(tenderControler.updateTender)
+	.delete(tenderControler.deleteTender)
 
 module.exports = router;

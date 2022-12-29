@@ -37,7 +37,7 @@ exports.adminLogin = catchAsync(async (req, res, next) => {
 	const { error } = validate(req.body);
 	if (error) return next(new AppError(error.message, 400));
 
-	let user = await User.findOne({ where: { [Op.and]: [{ email: req.body.email }, { isSuperAdmin: true }, { type: 'Super_Admin' }] } });
+	let user = await User.findOne({ where: { [Op.and]: [{ email: req.body.email }, { type: 'Super_Admin' }] } });
 	if (!user) return next(new AppError('Invalid email or password.', 400));
 
 	const isValid = await bcrypt.compare(req.body.password, user.password);
@@ -46,7 +46,7 @@ exports.adminLogin = catchAsync(async (req, res, next) => {
 	// Check if user account is active
 	if (!user.isAccountActive || !user.isEmailVerified) return next(new AppError('User account is not active', 400));
 
-	const token  = jwt.sign({ id: user.userId, name: user.name, email: user.email, isSuperAdmin: true }, process.env.JWT_PRIVATE_KEY, {
+	const token  = jwt.sign({ id: user.userId, name: user.name, email: user.email }, process.env.JWT_PRIVATE_KEY, {
 		expiresIn: process.env.JWT_EXPIRY
 	});
 

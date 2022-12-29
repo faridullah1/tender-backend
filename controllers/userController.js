@@ -93,7 +93,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 		type, confirmationCode: token 
 	});
 
-	if (type !== 'Client') {
+	if (['Consultant', 'Supplier', 'Contractor'].includes(type)) {
 		const { companyName, commercialRegNumber, address, totalEmployees } = req.body;
 
 		const company = await UserCompany.create({
@@ -148,9 +148,7 @@ exports.createSuperAdmin = catchAsync(async (req, res, next) => {
 		password: encryptedPassword,
 		type: 'Super_Admin',
 		isAccountActive: true,
-		isEmailVerified: true,
-		isSuperAdmin: true,
-		isAdmin: true
+		isEmailVerified: true
 	});
 	
 	res.status(201).json({
@@ -251,12 +249,12 @@ exports.sendEmail = catchAsync( async(req, res, next) => {
 });
 
 validateRequestData = (req, next) => {
-	if (req.body.fromAdmin) {
-		const { error } = validateNormalAndAdminUser(req.body);
+	if (req.body.type === 'Client') {
+		const { error } = validate(req.body);
 		if (error) return next(new AppError(error.message, 400));
 	}
-	else if (req.body.type === 'Client') {
-		const { error } = validate(req.body);
+	else if (['Admin', 'Employee'].includes(req.body.type)) {
+		const { error } = validateAdmin(req.body);
 		if (error) return next(new AppError(error.message, 400));
 	}
 	else
@@ -274,20 +272,6 @@ validateMobileNumber = (mobNumber) => {
 	return schema.validate(mobNumber);
 }
 
-validateNormalAndAdminUser = (user) => {
-	const schema = Joi.object({
-		name: Joi.string().required().min(3),
-		email: Joi.string().required().email(),
-		mobileNumber: Joi.string().required().min(10).max(10),
-		password: Joi.string().required().min(8),
-		type: Joi.string().required().valid('Client', 'Supplier', 'Contractor', 'Consultant', 'Admin', 'Employee'),
-		fromAdmin: Joi.boolean().default(false),
-		isAdmin: Joi.boolean().default(false),
-	});
-
-	return schema.validate(user);
-}
-
 validateNonClientUser = (user) => {
 	const schema = Joi.object({
 		name: Joi.string().required().min(3),
@@ -301,7 +285,9 @@ validateNonClientUser = (user) => {
 		commercialRegNumber: Joi.string().required(),
 		address: Joi.string().required(),
 		totalEmployees: Joi.number().required(),
-		documents: Joi.string().allow('')
+		documents: Joi.string().allow(''),
+
+		fromAdmin: Joi.boolean().default(false)
 	});
 
 	return schema.validate(user);
@@ -312,7 +298,9 @@ validateAdmin = (user) => {
 		name: Joi.string().required().min(3),
 		email: Joi.string().required().email(),
 		mobileNumber: Joi.string().required().min(10).max(10),
-		password: Joi.string().required().min(8)
+		type: Joi.string().required().valid('Super_Admin', 'Admin', 'Employee'),
+		password: Joi.string().required().min(8),
+		fromAdmin: Joi.boolean().default(false),
 	});
 
 	return schema.validate(user);

@@ -53,7 +53,7 @@ const User = db.define('user',
 		allowNull: false,
 		defaultValue: false
 	},
-	company: {
+	companyId: {
 		type: Sequelize.INTEGER,
 		allowNull: true,
 		references: {

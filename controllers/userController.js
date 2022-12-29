@@ -77,7 +77,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
 });
 
 exports.createUser = catchAsync(async (req, res, next) => {
-	validateRequestData(req);
+	validateRequestData(req, next);
 
 	const token = jwt.sign({ email: req.body.email }, process.env.JWT_PRIVATE_KEY);
 
@@ -100,7 +100,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 			name: companyName, commercialRegNumber, address, totalEmployees
 		});
 
-		user.company = company.dataValues.companyId;
+		user.companyId = company.dataValues.companyId;
 
 		await user.save();
 	}
@@ -250,7 +250,7 @@ exports.sendEmail = catchAsync( async(req, res, next) => {
 	});
 });
 
-validateRequestData = (req) => {
+validateRequestData = (req, next) => {
 	if (req.body.fromAdmin) {
 		const { error } = validateNormalAndAdminUser(req.body);
 		if (error) return next(new AppError(error.message, 400));

@@ -8,6 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 exports.getAllProjects = catchAsync(async (req, res, next) => {
 	const { type, userId } = req.user;
 	const name = req.query.name;
+	const isApproved = req.query.isApproved;
 
 	const where = {};
 
@@ -16,6 +17,9 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 		where.name = {
 			[Op.like]: '%' + name + '%'
 		}
+	}
+	else if (isApproved) {
+		where.isApproved = (isApproved === 'true');
 	}
 
 	// Project is always associated with a client, no project without a client;

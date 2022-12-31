@@ -23,7 +23,7 @@ exports.login = catchAsync(async (req, res, next) => {
 	const isValid = await bcrypt.compare(req.body.password, user.password);
 	if (!isValid) return next(new AppError('Invalid email or password.', 400));
 
-	const token  = jwt.sign({ id: user.userId, name: user.name, email: user.email, type: user.type }, process.env.JWT_PRIVATE_KEY, {
+	const token  = jwt.sign({ userId: user.userId, name: user.name, email: user.email, type: user.type }, process.env.JWT_PRIVATE_KEY, {
 		expiresIn: process.env.JWT_EXPIRY
 	});
 
@@ -46,7 +46,7 @@ exports.adminLogin = catchAsync(async (req, res, next) => {
 	// Check if user account is active
 	if (!user.isAccountActive || !user.isEmailVerified) return next(new AppError('User account is not active', 400));
 
-	const token  = jwt.sign({ id: user.userId, name: user.name, email: user.email }, process.env.JWT_PRIVATE_KEY, {
+	const token  = jwt.sign({ userId: user.userId, name: user.name, email: user.email }, process.env.JWT_PRIVATE_KEY, {
 		expiresIn: process.env.JWT_EXPIRY
 	});
 

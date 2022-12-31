@@ -22,7 +22,7 @@ exports.auth = catchAsync(async (req, res, next) => {
 
 	// 3) Check if user still exists;
 	if (decoded) {
-		const currentUser = await User.findByPk(decoded.id);
+		const currentUser = await User.findByPk(decoded.userId);
 		if (!currentUser) {
 			return next(new AppError('The user belongs to the token does no longer exists.', 401));
 		}

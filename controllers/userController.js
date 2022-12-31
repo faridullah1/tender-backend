@@ -8,6 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 const { generateRandomFourDigits, sendSMS, sendEmail } = require('../utils/helpers');
 const { Op } = require('sequelize');
 const { UserCompany } = require('../models/userCompanyModel');
+const { Bidding } = require('../models/biddingModel');
 
 prepareWhere = (userType) => {
 	let operator = 'eq';
@@ -61,6 +62,28 @@ exports.getAllUsers = async (req, res, next) => {
 		}
 	});
 };
+
+exports.me = catchAsync(async (req, res, next) => {
+	const userId = req.user.userId;
+	const user = await User.findByPk(userId, { attributes: ['userId', 'name', 'email', 'mobileNumber', 'type' ] });
+
+	if (!user) return next(new AppError('No record found with given Id', 404));
+
+	const biddings = await Bidding.findAll({ where: { userId }, attributes: ['tenderId', 'status'] });
+
+	user.dataValues.password = undefined;
+	user.dataValues.tenders = [];
+	for (let rec of biddings) {
+		user.dataValues.tenders.push(rec);
+	}
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			user
+		}
+	});
+});
 
 exports.getUser = catchAsync(async (req, res, next) => {
 	const userId = req.params.id;

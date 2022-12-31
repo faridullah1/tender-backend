@@ -2,6 +2,7 @@
 const { User } = require('./models/userModel');
 const { Project } = require('./models/projectsModel');
 const { Tender } = require('./models/tenderModel');
+const { Bidding } = require('./models/biddingModel');
 
 module.exports = function() {
 	User.hasMany(Project, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'clientId' });
@@ -9,4 +10,10 @@ module.exports = function() {
 
 	Project.hasMany(Tender, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'projectId' });
 	Tender.belongsTo(Project, { foreignKey: 'projectId' });
+
+	User.hasMany(Bidding, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'userId'});
+	Bidding.belongsTo(User, { foreignKey: 'userId' });
+
+	Tender.hasMany(Bidding, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'tenderId'});
+	Bidding.belongsTo(Tender, { foreignKey: 'tenderId' })
 }

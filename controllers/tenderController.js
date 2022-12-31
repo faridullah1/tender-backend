@@ -63,6 +63,7 @@ exports.createTender = catchAsync(async (req, res, next) => {
 	});
 
 	const tenderId = tender.dataValues.tenderId;
+	
 	const job = schedule.scheduleJob(closingDate, async function() {
 		await markTenderAsClosed(tenderId);
 		console.log(`Tender with id = ${tenderId} mark as closed`);

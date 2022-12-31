@@ -17,6 +17,7 @@ const userRouter = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
 const projectRouter = require('./routes/projectRoutes');
 const tenderRouter = require('./routes/tenderRoutes');
+const bidsRouter = require('./routes/biddingRoutes');
 
 
 app.get('/', (req, res) => {
@@ -28,6 +29,7 @@ app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
 app.use('/api/tenders', tenderRouter);
+app.use('/api/bids', bidsRouter);
 
 // Handling unhandled routes
 app.all('*', (req, res, next) => {

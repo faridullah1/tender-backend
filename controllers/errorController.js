@@ -7,6 +7,16 @@ const sendErrorDev = (err, res) => {
 				const field = Object.entries(err.fields);
 				errorMessage = `${field[0][0]} already exists`;
 				break;
+
+			case 'JsonWebTokenError':
+				err.statusCode = 401;
+				errorMessage = 'Invalid token. Please log in again';
+				break;
+
+			case 'TokenExpiredError':
+				err.statusCode = 401;
+				errorMessage = 'Your token is expired. Please log in again';
+				break;
 		}
 	}
 

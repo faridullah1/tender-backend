@@ -5,11 +5,11 @@ const { auth } = require('../middlewares/auth');
 const { restrictTo } = require('../middlewares/permissions');
 
 router.route('/')
-	.get(auth, biddingController.getAllBids)
+	.get(auth, restrictTo('Super_Admin', 'Admin'), biddingController.getAllBids)
 	.post(auth, restrictTo('Consultant', 'Constractor', 'Supplier'), biddingController.participateInBidding);
 
-router.use(auth, restrictTo('Super_Admin', 'Admin'));
 router.route('/:id')
-	.delete(biddingController.deleteBid)
+	.patch(auth, restrictTo('Consultant', 'Constractor', 'Supplier', 'Super_Admin', 'Admin'), biddingController.updateBid)
+	.delete(auth, restrictTo('Super_Admin', 'Admin'), biddingController.deleteBid)
 
 module.exports = router;

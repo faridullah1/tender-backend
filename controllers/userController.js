@@ -69,12 +69,12 @@ exports.me = catchAsync(async (req, res, next) => {
 
 	if (!user) return next(new AppError('No record found with given Id', 404));
 
-	const biddings = await Bidding.findAll({ where: { userId }, attributes: ['tenderId', 'status'] });
+	const biddings = await Bidding.findAll({ where: { userId }, attributes: ['biddingId', 'tenderId', 'status'] });
 
 	user.dataValues.password = undefined;
-	user.dataValues.tenders = [];
+	user.dataValues.bids = [];
 	for (let rec of biddings) {
-		user.dataValues.tenders.push(rec);
+		user.dataValues.bids.push(rec);
 	}
 
 	res.status(200).json({

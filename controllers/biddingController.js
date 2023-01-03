@@ -57,7 +57,7 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 	{
 		const scheduleEmailDate = new Date(lastTenMinutes);
 		const job = schedule.scheduleJob(scheduleEmailDate, async function() {
-			console.log('Sending email at', moment(scheduleEmailDate).format('M/D/YYYY, H:mm:ss'));
+			console.log(`Sending email at ${moment(scheduleEmailDate).format('M/D/YYYY, H:mm:ss')} to user ${user.name.toUpperCase()}`);
 
 			const emailOptions = {
 				email: user.email,
@@ -84,14 +84,14 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 
 		const { tenderId, userId} = req.body;
 
-		const bidding = await Bidding.create({ 
+		const bid = await Bidding.create({ 
 			tenderId, userId
 		});
 	
 		res.status(201).json({
 			status: 'success',
 			data: {
-				bidding
+				bid
 			}
 		});
 	}
@@ -103,7 +103,7 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 			status = 'Qualified';
 		}
 
-		const bidding = await Bidding.create({ 
+		const bid = await Bidding.create({ 
 			tenderId, 
 			userId, 
 			durationInLetters, 
@@ -116,10 +116,35 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 		res.status(201).json({
 			status: 'success',
 			data: {
-				bidding
+				bid
 			}
 		});
 	}
+});
+
+exports.updateBid = catchAsync(async (req, res, next) => {
+	const biddingId = req.params.id;
+
+	const bidding = await Bidding.findByPk(biddingId);
+	if (!bidding) return next(new AppError('Could not find bid with the given Id', 404));
+
+	const tender = await Tender.findByPk(bidding.dataValues.tenderId);
+	if (!tender) return next(new AppError('Could not find bid with the given Id', 404));
+
+	let status = 'Not_Qualified';
+	if (req.body.priceInNumbers > tender.minimumPrice && req.body.priceInNumbers < tender.maximumPrice) {
+		status = 'Qualified';
+	}
+	req.body.status = status;
+
+	const bid = await Bidding.update(req.body, { where: { biddingId }});
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			bid
+		}
+	});
 });
 
 exports.deleteBid = catchAsync(async (req, res, next) => {

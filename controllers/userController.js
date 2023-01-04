@@ -53,7 +53,7 @@ exports.getAllUsers = async (req, res, next) => {
 	// Don't query logged in user data
 	where.email = { [Op.ne]: req.user.email };
 	
-	const users = await User.findAll({ where });
+	const users = await User.findAll({ where, include: [{ model: UserCompany, required: false }]});
 
 	res.status(200).json({
 		status: 'success',

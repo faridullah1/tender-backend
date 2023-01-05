@@ -1,5 +1,5 @@
 // 3rd party packages
-const Joi = require('Joi');
+const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');

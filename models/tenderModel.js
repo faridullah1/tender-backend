@@ -3,6 +3,7 @@ const Joi = require('joi');
 
 const db = require('../db');
 const { Project } = require('./projectsModel');
+const { User } = require('./userModel');
 
 const Tender = db.define('tender', 
 {
@@ -56,6 +57,15 @@ const Tender = db.define('tender',
 		references: {
 			model: Project,
 			key: 'projectId',
+			onDelete: 'RESTRICT'
+		}
+	},
+	awardedTo: {
+		type: Sequelize.INTEGER,
+		allowNull: true,
+		references: {
+			model: User,
+			key: 'userId',
 			onDelete: 'RESTRICT'
 		}
 	}

@@ -3,6 +3,7 @@ const schedule = require('node-schedule');
 
 const { Bidding, validate } = require("../models/biddingModel");
 const { Tender } = require("../models/tenderModel");
+const { UserCompany } = require("../models/userCompanyModel");
 const { User } = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
@@ -11,7 +12,8 @@ const { sendEmail } = require("../utils/helpers");
 exports.getAllBids = catchAsync(async (req, res, next) => {
 	const bids = await Bidding.findAll({ include: [
 		{ 
-			model: User, attributes: ['name', 'mobileNumber'] 
+			model: User, attributes: ['name', 'mobileNumber'],
+			include: { model: UserCompany, attributes: ['companyId', 'name'] }
 		},
 		{
 			model: Tender, attributes: ['tenderNumber']
@@ -21,6 +23,27 @@ exports.getAllBids = catchAsync(async (req, res, next) => {
 		status: 'success',
 		data: {
 			bids
+		}
+	});
+});
+
+exports.getBiddersByTenderId = catchAsync(async (req, res, next) => {
+	const tenderId = +req.params.id;
+	if (!tenderId) return next(new AppError('Tender id is required.'), 400);
+
+	const bidders = await Bidding.findAll({ 
+		where: { tenderId, status: 'Qualified' }, 
+		include: {
+			model: User, attributes: ['userId', 'name'],
+			include: { model: UserCompany, attributes: ['companyId', 'name'] }
+		},
+		attributes: ['biddingId']
+	});
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			bidders
 		}
 	});
 });

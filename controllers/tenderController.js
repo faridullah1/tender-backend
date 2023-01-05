@@ -1,7 +1,9 @@
 const schedule = require('node-schedule');
+const { Bidding } = require('../models/biddingModel');
 
 const { Project } = require('../models/projectsModel');
 const { Tender, validate } = require('../models/tenderModel');
+const { User } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -63,7 +65,7 @@ exports.createTender = catchAsync(async (req, res, next) => {
 	});
 
 	const tenderId = tender.dataValues.tenderId;
-	
+
 	const job = schedule.scheduleJob(closingDate, async function() {
 		await markTenderAsClosed(tenderId);
 		console.log(`Tender with id = ${tenderId} mark as closed`);
@@ -101,6 +103,35 @@ exports.deleteTender = catchAsync(async (req, res, next) => {
 		status: 'success',
 		data: {
 			tender
+		}
+	});
+});
+
+exports.awardTender = catchAsync(async (req, res, next) => {
+	const tenderId = req.params.id;
+
+	const userId = req.body.awardedTo;
+	const company = req.body.company;
+
+	const tender = await Tender.update({ awardedTo: userId, status: `Awarded to ${company}`}, { where: { tenderId }});
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tender
+		}
+	});
+});
+
+exports.tenderBids = catchAsync(async (req, res, next) => {
+	const tenderId = req.params.id;
+
+	const bids = await Bidding.findAll({ where: { tenderId }, include: { model: User }});
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			bids
 		}
 	});
 });

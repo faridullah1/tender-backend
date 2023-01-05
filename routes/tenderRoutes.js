@@ -9,7 +9,7 @@ router.route('/:id/awardTender').patch(auth, restrictTo('Super_Admin', 'Admin'),
 
 router.route('/')
 	.get(auth, tenderControler.getAllTenders)
-	.post(auth, restrictTo('Super_Admin', 'Admin'), tenderControler.createTender);
+	.post(auth, restrictTo('Super_Admin', 'Admin'), tenderControler.uploadDocs, tenderControler.createTender);
 
 router.use(auth, restrictTo('Super_Admin', 'Admin'));
 

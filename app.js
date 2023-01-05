@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const dotEnv = require('dotenv');
 
 const globalErrorHandler = require('./controllers/errorController');
@@ -11,6 +12,7 @@ dotEnv.config({
 });
 
 app.use(express.json());
+app.use(compression());
 
 // Routers
 const userRouter = require('./routes/userRoutes');

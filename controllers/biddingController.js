@@ -60,10 +60,6 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 	const tenderOpeningTime = new Date(tender.openingDate).getTime();
 	const tenderClosingTime = new Date(tender.closingDate).getTime();
 
-	console.log(moment(currentTime).format('M/D/YYYY, H:mm:ss A'));
-	console.log(moment(tenderOpeningTime).format('M/D/YYYY, H:mm:ss A'));
-	console.log(moment(tenderClosingTime).format('M/D/YYYY, H:mm:ss A'));
-
 	if (!(currentTime > tenderOpeningTime && currentTime < tenderClosingTime)) {
 		return next(new AppError('Can not participate in tender bidding.', 400));
 	}
@@ -74,7 +70,6 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 	}
 
 	const lastTenMinutes = moment(tenderClosingTime).subtract(10, 'minutes');
-	console.log('Last 10 minutes ', moment(lastTenMinutes).format('M/D/YYYY, H:mm:ss A'));
 
 	if (moment(lastTenMinutes).isSameOrAfter(currentTime)) 
 	{
@@ -95,7 +90,7 @@ exports.participateInBidding = catchAsync(async (req, res, next) => {
 		}.bind(null, user));
 
 		const emailOptions = {
-			email: 'faridullah996@gmail.com',
+			email: user.email,
 			subject: 'Bidding Participation',
 			html:  `
 				<h2>Hi, ${user.name}</h2>

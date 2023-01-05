@@ -6,6 +6,7 @@ const { Tender, validate } = require('../models/tenderModel');
 const { User } = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const { sendEmail } = require('../utils/helpers');
 
 async function markTenderAsClosed(tenderId) {
 	const tenderToClose = await Tender.findByPk(tenderId);
@@ -113,8 +114,21 @@ exports.awardTender = catchAsync(async (req, res, next) => {
 	const userId = req.body.awardedTo;
 	const company = req.body.company;
 
+	const user = await User.findByPk(userId);
+
 	const tender = await Tender.update({ awardedTo: userId, status: `Awarded to ${company}`}, { where: { tenderId }});
 
+	const emailOptions = {
+		email: user.email,
+		subject: 'Awarded with tender',
+		html:  `
+			<h2>Hi, ${user.name}</h2>
+			<p>Congratulations, we are please to let you know that your company is selected for project</p>
+		</div>`
+	};
+
+	await sendEmail(emailOptions);
+	
 	res.status(200).json({
 		status: 'success',
 		data: {

@@ -1,10 +1,14 @@
+// 3rd party packages
 const moment = require("moment/moment");
 const schedule = require('node-schedule');
 
+// Models
 const { Bidding, validate } = require("../models/biddingModel");
 const { Tender } = require("../models/tenderModel");
 const { UserCompany } = require("../models/userCompanyModel");
 const { User } = require("../models/userModel");
+
+// Utils
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const { sendEmail } = require("../utils/helpers");

@@ -1,9 +1,13 @@
+// 3rd party packages
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 
+// Models
 const { User } = require('../models/userModel');
+
+// Utils
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 

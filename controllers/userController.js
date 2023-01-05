@@ -1,14 +1,18 @@
+// 3rd party packages
 const Joi = require('Joi');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 
+// Models
 const { User, validate } = require('../models/userModel');
+const { UserCompany } = require('../models/userCompanyModel');
+const { Bidding } = require('../models/biddingModel');
+
+// Utils
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { generateRandomFourDigits, sendSMS, sendEmail } = require('../utils/helpers');
-const { Op } = require('sequelize');
-const { UserCompany } = require('../models/userCompanyModel');
-const { Bidding } = require('../models/biddingModel');
 
 prepareWhere = (userType) => {
 	let operator = 'eq';

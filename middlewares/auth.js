@@ -1,8 +1,14 @@
+// Built in packages
 const { promisify } = require('util');
+
+// 3rd party packages
 const jwt = require('jsonwebtoken');
 
-const AppError = require('../utils/appError');
+// Models
 const { User } = require('../models/userModel');
+
+// Utils
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.auth = catchAsync(async (req, res, next) => {

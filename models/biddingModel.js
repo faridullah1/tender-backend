@@ -1,9 +1,10 @@
 const Sequelize = require('sequelize');
 const Joi = require('joi');
 
-const db = require('../db');
 const { Tender } = require('./tenderModel');
 const { User } = require('./userModel');
+
+const db = require('../db');
 
 const Bidding = db.define('bidding', 
 {

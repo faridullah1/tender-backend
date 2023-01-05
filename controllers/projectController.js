@@ -1,7 +1,12 @@
+// 3rd party packages
 const { Op } = require('sequelize');
+
+// Models
 const { Project, validate } = require('../models/projectsModel');
 const { Tender } = require('../models/tenderModel');
 const { User } = require('../models/userModel');
+
+// Utils
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 

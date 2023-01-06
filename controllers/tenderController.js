@@ -6,6 +6,7 @@ const schedule = require('node-schedule');
 const { Bidding } = require('../models/biddingModel');
 const { Project } = require('../models/projectsModel');
 const { Tender, validate } = require('../models/tenderModel');
+const { UserCompany } = require('../models/userCompanyModel');
 const { User } = require('../models/userModel');
 
 // Utils
@@ -153,7 +154,10 @@ exports.awardTender = catchAsync(async (req, res, next) => {
 exports.tenderBids = catchAsync(async (req, res, next) => {
 	const tenderId = req.params.id;
 
-	const bids = await Bidding.findAll({ where: { tenderId }, include: { model: User }});
+	const bids = await Bidding.findAll({ 
+		where: { tenderId }, 
+		include: { model: User, include: { model: UserCompany, required: false }
+	}});
 
 	res.status(200).json({
 		status: 'success',

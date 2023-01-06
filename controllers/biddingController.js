@@ -21,7 +21,8 @@ exports.getAllBids = catchAsync(async (req, res, next) => {
 		},
 		{
 			model: Tender, attributes: ['tenderNumber']
-		}]});
+		}]
+	});
 
 	res.status(200).json({
 		status: 'success',

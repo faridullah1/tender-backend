@@ -36,7 +36,7 @@ exports.getBiddersByTenderId = catchAsync(async (req, res, next) => {
 	if (!tenderId) return next(new AppError('Tender id is required.'), 400);
 
 	const bidders = await Bidding.findAll({ 
-		where: { tenderId, status: 'Qualified' }, 
+		where: { tenderId }, 
 		include: {
 			model: User, attributes: ['userId', 'name'],
 			include: { model: UserCompany, attributes: ['companyId', 'name'] }

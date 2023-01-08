@@ -1,6 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const dotEnv = require('dotenv');
+const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -13,6 +14,7 @@ dotEnv.config({
 
 app.use(express.json());
 app.use(compression());
+app.use(cors());
 
 // Routers
 const userRouter = require('./routes/userRoutes');

@@ -139,17 +139,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 		await user.save();
 	}
 	else {
-		const emailOptions = {
-			email: email,
-			subject: 'Please confirm your account',
-			html:  `<h1>Email Confirmation</h1>
-				<h2>Hi, ${name}</h2>
-				<p>Thank you for registering with Wissal. Please confirm your email by clicking on the following link</p>
-				<a href=http://localhost:4200/confirm/${token}> Click here</a>
-			</div>`
-		};
-	
-		await sendEmail(emailOptions);
+		await sendVerifyAccountEmail(token, user);
 	}
 	
 	res.status(201).json({
@@ -331,4 +321,24 @@ validateAdmin = (user) => {
 	});
 
 	return schema.validate(user);
+}
+
+sendVerifyAccountEmail = async (token, user) => {
+	let redirectUrl = `http://localhost:4200/confirm/${token}`;
+
+	if (process.env.NODE_ENV === 'production') {
+		redirectUrl = `https://wissal.herokuapp.com/confirm/${token}`;
+	}
+
+	const emailOptions = {
+		email: user.email,
+		subject: 'Please confirm your account',
+		html:  `<h1>Email Confirmation</h1>
+			<h2>Hi, ${user.name}</h2>
+			<p>Thank you for registering with Wissal. Please confirm your email by clicking on the following link</p>
+			<a href=${redirectUrl}> Click here</a>
+		</div>`
+	};
+
+	await sendEmail(emailOptions);
 }

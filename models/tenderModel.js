@@ -83,7 +83,7 @@ function validateTender(tender) {
 		location: Joi.string().required(),
 		description: Joi.string().required().max(1000),
 		projectId: Joi.number().required(),
-		documents: Joi.string(),
+		documents: Joi.string().allow(''),
 	});
 
 	return schema.validate(tender);

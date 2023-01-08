@@ -330,6 +330,8 @@ sendVerifyAccountEmail = async (token, user) => {
 		redirectUrl = `https://wissal.herokuapp.com/confirm/${token}`;
 	}
 
+	console.log('redirect URL =', redirectUrl, process.env.NODE_ENV);
+	
 	const emailOptions = {
 		email: user.email,
 		subject: 'Please confirm your account',

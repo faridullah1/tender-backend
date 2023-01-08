@@ -11,11 +11,11 @@ router.route('/')
 	.get(auth, tenderControler.getAllTenders)
 	.post(auth, restrictTo('Super_Admin', 'Admin'), tenderControler.uploadDocs, tenderControler.createTender);
 
-router.use(auth, restrictTo('Super_Admin', 'Admin'));
+router.use(auth);
 
 router.route('/:id')
 	.get(tenderControler.getTender)
-	.patch(tenderControler.updateTender)
-	.delete(tenderControler.deleteTender)
+	.patch(restrictTo('Super_Admin', 'Admin'), tenderControler.updateTender)
+	.delete(restrictTo('Super_Admin', 'Admin'), tenderControler.deleteTender)
 
 module.exports = router;

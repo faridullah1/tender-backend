@@ -46,8 +46,11 @@ exports.getAllTenders = catchAsync(async (req, res, next) => {
 exports.getTender = catchAsync(async (req, res, next) => {
 	const tenderId = req.params.id;
 	const tender = await Tender.findByPk(tenderId);
+	const participants = await Bidding.count({ where: { tenderId } });
 
 	if (!tender) return next(new AppError('No record found with given Id', 404));
+
+	tender.dataValues.noOfParticipants = participants;
 
 	res.status(200).json({
 		status: 'success',

@@ -22,6 +22,7 @@ const authRouter = require('./routes/authRoutes');
 const projectRouter = require('./routes/projectRoutes');
 const tenderRouter = require('./routes/tenderRoutes');
 const bidsRouter = require('./routes/biddingRoutes');
+const notificationRouter = require('./routes/notificationRoutes');
 
 
 app.get('/', (req, res) => {
@@ -34,6 +35,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
 app.use('/api/tenders', tenderRouter);
 app.use('/api/bids', bidsRouter);
+app.use('/api/notifications', notificationRouter);
+
 
 // Handling unhandled routes
 app.all('*', (req, res, next) => {

@@ -1,5 +1,5 @@
 // Models
-const { Notification, validate } = require('../models/notificationModel');
+const { UserNotification, validate } = require('../models/notificationModel');
 
 // Utils
 const AppError = require('../utils/appError');
@@ -8,7 +8,7 @@ const catchAsync = require('../utils/catchAsync');
 exports.getAllNotifications = catchAsync(async (req, res, next) => {
 	const userId = req.query.userId;
 
-	const notifications = await Notification.findAll({ where: { userId }});
+	const notifications = await UserNotification.findAll({ where: { userId }});
 
 	res.status(200).json({
 		status: 'success',
@@ -23,7 +23,7 @@ exports.createNotification = catchAsync(async (req, res, next) => {
 	if (error) return next(new AppError(error.message, 400));
 
 	const {userId, type, content } = req.body;
-	const notification = await Notification.create({ userId, type, content });
+	const notification = await UserNotification.create({ userId, type, content, senderId: req.user.userId });
 	
 	res.status(201).json({
 		status: 'success',

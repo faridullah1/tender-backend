@@ -4,6 +4,7 @@ const schedule = require('node-schedule');
 
 // Models
 const { Bidding } = require('../models/biddingModel');
+const { UserNotification } = require('../models/notificationModel');
 const { Project } = require('../models/projectsModel');
 const { Tender, validate } = require('../models/tenderModel');
 const { UserCompany } = require('../models/userCompanyModel');
@@ -135,15 +136,17 @@ exports.awardTender = catchAsync(async (req, res, next) => {
 	const user = await User.findByPk(userId);
 	const tender = await Tender.update({ awardedTo: userId, status: `Awarded to ${company}`}, { where: { tenderId }});
 
+	const emailContent = `Congratulations, we are pleased to let you know that your company "${company}" has been selected for project`;
 	const emailOptions = {
 		email: user.email,
 		subject: 'Awarded with tender',
 		html:  `
 			<h2>Hi, ${user.name}</h2>
-			<p>Congratulations, we are please to let you know that your company is selected for project</p>
+			<p>${emailContent}</p>
 		</div>`
 	};
 
+	await UserNotification.create({  userId: user.userId, type: 'email', content: emailContent, createdBy: req.user.userId });
 	await sendEmail(emailOptions);
 	
 	res.status(200).json({

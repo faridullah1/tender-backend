@@ -29,7 +29,16 @@ const Notification = db.define('notification',
 	content: {
 		type: Sequelize.STRING,
 		allowNull: true
-	}
+	},
+	senderId: {
+		type: Sequelize.INTEGER,
+		allowNull: false,
+		references: {
+			model: User,
+			key: 'userId',
+			onDelete: 'RESTRICT'
+		}
+	},
 });
 
 function validateNotification(notification) {
@@ -43,4 +52,4 @@ function validateNotification(notification) {
 }
 
 exports.validate = validateNotification;
-exports.Notification = Notification;
+exports.UserNotification = Notification;

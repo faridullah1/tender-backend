@@ -154,6 +154,19 @@ exports.awardTender = catchAsync(async (req, res, next) => {
 	});
 });
 
+exports.unAwardTender = catchAsync(async (req, res, next) => {
+	const tenderId = req.params.id;
+
+	const tender = await Tender.update({ awardedTo: null, status: `Under Evaluation`}, { where: { tenderId }});
+		
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tender
+		}
+	});
+});
+
 exports.tenderBids = catchAsync(async (req, res, next) => {
 	const tenderId = req.params.id;
 

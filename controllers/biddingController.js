@@ -1,6 +1,7 @@
 // 3rd party packages
 const moment = require("moment/moment");
 const schedule = require('node-schedule');
+const { Op } = require('sequelize');
 
 // Models
 const { Bidding, validate } = require("../models/biddingModel");
@@ -37,12 +38,12 @@ exports.getBiddersByTenderId = catchAsync(async (req, res, next) => {
 	if (!tenderId) return next(new AppError('Tender id is required.'), 400);
 
 	const bidders = await Bidding.findAll({ 
-		where: { tenderId }, 
+		where: { tenderId, status: { [Op['ne']]: null }}, 
 		include: {
 			model: User, attributes: ['userId', 'name'],
 			include: { model: UserCompany, attributes: ['companyId', 'name'] }
 		},
-		attributes: ['biddingId']
+		attributes: ['biddingId', 'priceInNumbers']
 	});
 
 	res.status(200).json({

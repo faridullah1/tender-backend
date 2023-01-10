@@ -1,4 +1,13 @@
 const sendErrorDev = (err, res) => {
+	res.status(err.statusCode).json({
+		status: err.status,
+		message: err.message,
+		err: err,
+		stack: err.stack
+	});
+}
+
+const sendErrorProd = (err, res) => {
 	let errorMessage = err.message;
 
 	if (err.name) {
@@ -23,15 +32,6 @@ const sendErrorDev = (err, res) => {
 	res.status(err.statusCode).json({
 		status: err.status,
 		message: errorMessage,
-		err: err,
-		stack: err.stack
-	});
-}
-
-const sendErrorProd = (err, res) => {
-	res.status(err.statusCode).json({
-		status: err.status,
-		message: err.message,
 	});
 }
 

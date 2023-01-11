@@ -15,6 +15,9 @@ module.exports = function() {
 	Project.hasMany(Tender, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'projectId' });
 	Tender.belongsTo(Project, { foreignKey: 'projectId' });
 
+	User.hasOne(Tender, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'awardedTo' });
+	Tender.belongsTo(User, { foreignKey: 'awardedTo' });
+
 	User.hasMany(Bidding, { constraints: true, OnDelete: 'RESTRICT', foreignKey: 'userId'});
 	Bidding.belongsTo(User, { foreignKey: 'userId' });
 

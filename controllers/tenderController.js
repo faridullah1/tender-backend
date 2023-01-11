@@ -32,9 +32,15 @@ const upload = multer({
 exports.uploadDocs = upload.single('documents');
 
 exports.getAllTenders = catchAsync(async (req, res, next) => {
-	const tenders = await Tender.findAll({ includes: [{
-		model: Project, attributes: ['name']
-	}]});
+	const tenders = await Tender.findAll({ include: [
+		{
+			model: Project, attributes: ['name']
+		},
+		{
+			model: User, attributes: ['userId', 'name'],
+			include: { model: UserCompany, attributes: ['companyId', 'name'] }
+		}
+	]});
 
 	res.status(200).json({
 		status: 'success',
@@ -146,7 +152,7 @@ exports.awardTender = catchAsync(async (req, res, next) => {
 		</div>`
 	};
 
-	await UserNotification.create({  userId: user.userId, type: 'email', content: emailContent, createdBy: req.user.userId });
+	await UserNotification.create({  userId: user.userId, type: 'email', content: emailContent, senderId: req.user.userId });
 	await sendEmail(emailOptions);
 	
 	res.status(200).json({

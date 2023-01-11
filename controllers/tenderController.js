@@ -38,7 +38,7 @@ exports.getAllTenders = catchAsync(async (req, res, next) => {
 		},
 		{
 			model: User, attributes: ['userId', 'name'],
-			include: { model: UserCompany, attributes: ['companyId', 'name'] }
+			include: { model: UserCompany }
 		}
 	]});
 
